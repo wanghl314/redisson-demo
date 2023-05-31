@@ -15,11 +15,9 @@
         <!-- org/apache/maven/plugins/maven-javadoc-plugin -->
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <!-- org/apache/maven/plugins/maven-source-plugin -->
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <!-- org/redisson/redisson -->
-        <redisson.version>3.21.1</redisson.version>
+        <redisson.version>3.21.3</redisson.version>
     </properties>
 
     <repositories>
