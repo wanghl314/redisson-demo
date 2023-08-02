@@ -17,7 +17,7 @@
         <!-- org/apache/maven/plugins/maven-source-plugin -->
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <!-- org/redisson/redisson -->
-        <redisson.version>3.23.0</redisson.version>
+        <redisson.version>3.23.2</redisson.version>
     </properties>
 
     <repositories>
