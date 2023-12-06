@@ -12,7 +12,7 @@ public class TestRedission {
 
     public static void main(String[] args) throws InterruptedException {
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://192.168.1.243:6379").setDatabase(0).setPassword("em7_redis");
+        config.useSingleServer().setAddress("redis://192.168.1.243:6379").setPassword("em7_redis").setDatabase(0);
         RedissonClient redisson = Redisson.create(config);
         RBucket<Object> bucket = redisson.getBucket("test");
         Object oldValue = bucket.get();
