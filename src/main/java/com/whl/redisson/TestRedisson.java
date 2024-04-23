@@ -1,6 +1,4 @@
-package com.whl.redission;
-
-import java.time.Duration;
+package com.whl.redisson;
 
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
@@ -8,7 +6,9 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
-public class TestRedission {
+import java.time.Duration;
+
+public class TestRedisson {
 
     public static void main(String[] args) throws InterruptedException {
         Config config = new Config();
