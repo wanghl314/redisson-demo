@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.whl.redission</groupId>
-    <artifactId>redission-demo</artifactId>
+    <groupId>com.whl.redisson</groupId>
+    <artifactId>redisson-demo</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
@@ -17,7 +17,7 @@
         <!-- org/apache/maven/plugins/maven-source-plugin -->
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <!-- org/redisson/redisson -->
-        <redisson.version>3.27.2</redisson.version>
+        <redisson.version>3.29.0</redisson.version>
         <revision>1.0-SNAPSHOT</revision>
     </properties>
 
