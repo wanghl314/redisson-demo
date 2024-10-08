@@ -7,6 +7,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
 import java.time.Duration;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class TestRedisson {
 
@@ -25,12 +27,160 @@ public class TestRedisson {
         }
         RLock lock = redisson.getLock("test-lock");
 
-        if (lock.tryLock()) {
-            Thread.sleep(10000L);
-            redisson.getBucket("other").set("other-value", Duration.ofSeconds(20));
+        Thread[] threads = new Thread[20];
+
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(new Task(i, lock, redisson));
         }
-        lock.unlock();
+
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
         redisson.shutdown();
+    }
+
+    private static class Task implements Runnable {
+        private final int index;
+
+        private final RLock lock;
+
+        private final RedissonClient redisson;
+
+        public Task(int index, RLock lock, RedissonClient redisson) {
+            this.index = index;
+            this.lock = lock;
+            this.redisson = redisson;
+        }
+
+        @Override
+        public void run() {
+            switch (this.index % 4) {
+                case 0:
+                    this.test1();
+                    break;
+                case 1:
+                    this.test2();
+                    break;
+                case 2:
+                    this.test3();
+                    break;
+                case 3:
+                    this.test4();
+                    break;
+                default:
+            }
+        }
+
+        /**
+         * 阻塞获取锁
+         */
+        private void test1() {
+            try {
+                long start = System.currentTimeMillis();
+                this.lock.lock();
+                System.out.println("task-" + this.index + " lock acquired");
+                Thread.sleep(new Random().nextLong(10000L));
+                this.redisson.getBucket("other").set("other-value", Duration.ofSeconds(20));
+                long end = System.currentTimeMillis();
+                System.out.println("task-" + this.index + " run " + (end - start) + " ms");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                this.lock.unlock();
+            }
+        }
+
+        /**
+         * 非阻塞获取锁，获取不到立即返回
+         */
+        private void test2() {
+            boolean acquire = false;
+
+            try {
+                long start = System.currentTimeMillis();
+                acquire = this.lock.tryLock();
+
+                if (acquire) {
+                    System.out.println("task-" + this.index + " lock acquired");
+                    Thread.sleep(new Random().nextLong(10000L));
+                    this.redisson.getBucket("other").set("other-value", Duration.ofSeconds(20));
+                }
+                long end = System.currentTimeMillis();
+                System.out.println("task-" + this.index + " run " + (end - start) + " ms");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (acquire) {
+                    this.lock.unlock();
+                }
+            }
+        }
+
+        /**
+         * 非阻塞获取锁，获取不到等2秒
+         * <ul>
+         *   <li>获取到锁，执行业务逻辑，锁自动续期</li>
+         *   <li>获取到锁立即返回</li>
+         * </ul>
+         */
+        private void test3() {
+            boolean acquire = false;
+
+            try {
+                long start = System.currentTimeMillis();
+                acquire = this.lock.tryLock(3, TimeUnit.SECONDS);
+
+                if (acquire) {
+                    System.out.println("task-" + this.index + " lock acquired");
+                    Thread.sleep(new Random().nextLong(10000L));
+                    this.redisson.getBucket("other").set("other-value", Duration.ofSeconds(20));
+                }
+                long end = System.currentTimeMillis();
+                System.out.println("task-" + this.index + " run " + (end - start) + " ms");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (acquire) {
+                    this.lock.unlock();
+                }
+            }
+        }
+
+        /**
+         * 非阻塞获取锁，获取不到等2秒
+         * <ul>
+         *   <li>获取到锁，执行业务逻辑，锁只占用3秒</li>
+         *   <li>获取到锁立即返回</li>
+         * </ul>
+         */
+        private void test4() {
+            boolean acquire = false;
+
+            try {
+                long start = System.currentTimeMillis();
+                acquire = this.lock.tryLock(3, 5,  TimeUnit.SECONDS);
+
+                if (acquire) {
+                    System.out.println("task-" + this.index + " lock acquired");
+                    Thread.sleep(new Random().nextLong(10000L));
+                    this.redisson.getBucket("other").set("other-value", Duration.ofSeconds(20));
+                }
+                long end = System.currentTimeMillis();
+                System.out.println("task-" + this.index + " run " + (end - start) + " ms");
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (acquire) {
+                    this.lock.unlock();
+                }
+            }
+        }
+
     }
 
 }
