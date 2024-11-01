@@ -5,12 +5,15 @@ import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class TestRedisson {
+    private static Logger logger = LoggerFactory.getLogger(TestRedisson.class);
 
     public static void main(String[] args) throws InterruptedException {
         Config config = new Config();
@@ -89,7 +92,7 @@ public class TestRedisson {
                 long end = System.currentTimeMillis();
                 System.out.println("task-" + this.index + " run " + (end - start) + " ms");
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             } finally {
                 this.lock.unlock();
             }
@@ -113,7 +116,7 @@ public class TestRedisson {
                 long end = System.currentTimeMillis();
                 System.out.println("task-" + this.index + " run " + (end - start) + " ms");
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             } finally {
                 if (acquire) {
                     this.lock.unlock();
@@ -143,7 +146,7 @@ public class TestRedisson {
                 long end = System.currentTimeMillis();
                 System.out.println("task-" + this.index + " run " + (end - start) + " ms");
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             } finally {
                 if (acquire) {
                     this.lock.unlock();
@@ -173,7 +176,7 @@ public class TestRedisson {
                 long end = System.currentTimeMillis();
                 System.out.println("task-" + this.index + " run " + (end - start) + " ms");
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(), e);
             } finally {
                 if (acquire) {
                     this.lock.unlock();
