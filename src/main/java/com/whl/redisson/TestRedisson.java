@@ -1,5 +1,11 @@
 package com.whl.redisson;
 
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.redisson.api.RLock;
@@ -8,6 +14,16 @@ import org.redisson.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.net.MalformedURLException;
+import java.security.KeyPair;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -15,9 +31,24 @@ import java.util.concurrent.TimeUnit;
 public class TestRedisson {
     private static Logger logger = LoggerFactory.getLogger(TestRedisson.class);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, MalformedURLException {
+        // none-ssl
         Config config = new Config();
-        config.useSingleServer().setAddress("redis://192.168.1.243:6379").setPassword("em7_redis").setDatabase(0);
+        config.useSingleServer()
+                .setAddress("redis://192.168.1.243:6379")
+                .setPassword("em7_redis")
+                .setDatabase(0);
+        // enable-ssl
+//        Config config = new Config();
+//        config.useSingleServer()
+//                .setAddress("redis://192.168.1.243:6379")
+//                .setPassword("em7_redis")
+//                .setDatabase(0)
+//                .setSslVerificationMode(SslVerificationMode.CA_ONLY)
+//                .setSslCiphers(null)
+//                .setSslProtocols(null)
+//                .setSslTrustManagerFactory(getTrustManagerFactory())
+//                .setSslKeyManagerFactory(getKeyManagerFactory());
         RedissonClient redisson = Redisson.create(config);
         RBucket<Object> bucket = redisson.getBucket("test");
         Object oldValue = bucket.get();
@@ -184,6 +215,54 @@ public class TestRedisson {
             }
         }
 
+    }
+
+    public static KeyManagerFactory getKeyManagerFactory() {
+        try {
+            // cert
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            Certificate certificate = certificateFactory.generateCertificate(new FileInputStream("D:\\Redis\\tls\\redis.crt"));
+            // key
+            PEMParser pemParser = new PEMParser(new FileReader("D:\\Redis\\tls\\redis.key"));
+            Object object = pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            KeyPair key;
+
+            if (object instanceof PEMEncryptedKeyPair) {
+                PEMDecryptorProvider provider = new JcePEMDecryptorProviderBuilder().build(null);
+                key = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(provider));
+            } else {
+                key = converter.getKeyPair((PEMKeyPair) object);
+            }
+            pemParser.close();
+            PrivateKey privateKey = key.getPrivate();
+            KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
+            store.load(null);
+            store.setKeyEntry("ssl", privateKey, null, new Certificate[]{ certificate });
+            KeyManagerFactory factory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            factory.init(store, null);
+            return factory;
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Could not load key manager factory: " + ex.getMessage(), ex);
+        }
+    }
+
+    public static TrustManagerFactory getTrustManagerFactory() {
+        try {
+            // cacert
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            Certificate certificate = certificateFactory.generateCertificate(new FileInputStream("D:\\Redis\\tls\\ca.crt"));
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null);
+            keyStore.setCertificateEntry("ssl", certificate);
+            TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            factory.init(keyStore);
+            return factory;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Could not load trust manager factory: " + ex.getMessage(), ex);
+        }
     }
 
 }
