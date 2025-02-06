@@ -18,7 +18,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.net.MalformedURLException;
 import java.security.KeyPair;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -31,15 +30,16 @@ import java.util.concurrent.TimeUnit;
 public class TestRedisson {
     private static Logger logger = LoggerFactory.getLogger(TestRedisson.class);
 
-    public static void main(String[] args) throws InterruptedException, MalformedURLException {
-        // none-ssl
+    public static void main(String[] args) throws InterruptedException {
         Config config = new Config();
+
+        // none-ssl
         config.useSingleServer()
                 .setAddress("redis://192.168.1.243:6379")
                 .setPassword("em7_redis")
                 .setDatabase(0);
-        // enable-ssl
-//        Config config = new Config();
+
+//        // enable-ssl
 //        config.useSingleServer()
 //                .setAddress("redis://192.168.1.243:6379")
 //                .setPassword("em7_redis")
@@ -49,6 +49,7 @@ public class TestRedisson {
 //                .setSslProtocols(null)
 //                .setSslTrustManagerFactory(getTrustManagerFactory())
 //                .setSslKeyManagerFactory(getKeyManagerFactory());
+
         RedissonClient redisson = Redisson.create(config);
         RBucket<Object> bucket = redisson.getBucket("test");
         Object oldValue = bucket.get();
