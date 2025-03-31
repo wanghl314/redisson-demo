@@ -15,13 +15,13 @@
         <!-- org/apache/logging/log4j/log4j-bom -->
         <log4j2.version>2.24.3</log4j2.version>
         <!-- org/apache/maven/plugins/maven-compiler-plugin -->
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <!-- org/apache/maven/plugins/maven-javadoc-plugin -->
         <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <!-- org/apache/maven/plugins/maven-source-plugin -->
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <!-- org/redisson/redisson -->
-        <redisson.version>3.44.0</redisson.version>
+        <redisson.version>3.45.1</redisson.version>
         <revision>1.0-SNAPSHOT</revision>
     </properties>
 
