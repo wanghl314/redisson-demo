@@ -42,7 +42,7 @@ public class TestRedisson {
 
 //        // enable-ssl
 //        config.useSingleServer()
-//                .setAddress("redis://192.168.1.243:6379")
+//                .setAddress("rediss://192.168.1.243:16379")
 //                .setPassword("em7_redis")
 //                .setDatabase(0)
 //                .setSslVerificationMode(SslVerificationMode.CA_ONLY)
