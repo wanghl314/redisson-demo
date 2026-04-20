@@ -35,21 +35,21 @@ public class TestRedisson {
         Config config = new Config();
 
         // none-ssl
-        config.useSingleServer()
+        config.setPassword("em7_redis")
+                .useSingleServer()
                 .setAddress("redis://192.168.1.243:6379")
-                .setPassword("em7_redis")
                 .setDatabase(0);
 
 //        // enable-ssl
-//        config.useSingleServer()
-//                .setAddress("rediss://192.168.1.243:16379")
-//                .setPassword("em7_redis")
-//                .setDatabase(0)
+//        config.setPassword("em7_redis")
 //                .setSslVerificationMode(SslVerificationMode.CA_ONLY)
 //                .setSslCiphers(null)
 //                .setSslProtocols(null)
 //                .setSslTrustManagerFactory(getTrustManagerFactory())
-//                .setSslKeyManagerFactory(getKeyManagerFactory());
+//                .setSslKeyManagerFactory(getKeyManagerFactory())
+//                .useSingleServer()
+//                .setAddress("rediss://192.168.1.243:16379")
+//                .setDatabase(0);
 
         RedissonClient redisson = Redisson.create(config);
         RBucket<Object> bucket = redisson.getBucket("test");
