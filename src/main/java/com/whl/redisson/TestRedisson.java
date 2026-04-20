@@ -1,5 +1,6 @@
 package com.whl.redisson;
 
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -228,16 +229,19 @@ public class TestRedisson {
             PEMParser pemParser = new PEMParser(new FileReader("D:\\Redis\\tls\\redis.key"));
             Object object = pemParser.readObject();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-            KeyPair key;
+            PrivateKey privateKey;
 
             if (object instanceof PEMEncryptedKeyPair) {
                 PEMDecryptorProvider provider = new JcePEMDecryptorProviderBuilder().build(null);
-                key = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(provider));
+                KeyPair key = converter.getKeyPair(((PEMEncryptedKeyPair) object).decryptKeyPair(provider));
+                privateKey = key.getPrivate();
+            } else if (object instanceof PrivateKeyInfo) {
+                privateKey = converter.getPrivateKey((PrivateKeyInfo) object);
             } else {
-                key = converter.getKeyPair((PEMKeyPair) object);
+                KeyPair key = converter.getKeyPair((PEMKeyPair) object);
+                privateKey = key.getPrivate();
             }
             pemParser.close();
-            PrivateKey privateKey = key.getPrivate();
             KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
             store.load(null);
             store.setKeyEntry("ssl", privateKey, null, new Certificate[]{ certificate });
